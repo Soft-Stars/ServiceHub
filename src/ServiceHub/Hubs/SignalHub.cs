@@ -19,6 +19,16 @@ namespace SignalRHub
             return _connections;
         }
 
+        public string GetConnectedClientName(string connectionId)
+        {
+            return _connections.FirstOrDefault(x => x.Key == connectionId).Value;
+        }
+
+        public KeyValuePair<string, string> GetConnectedClient(string connectionId)
+        {
+            return _connections.FirstOrDefault(x => x.Key == connectionId);
+        }
+
         public override async Task OnConnectedAsync()
         {
             var clientId = Context.ConnectionId;
@@ -41,8 +51,9 @@ namespace SignalRHub
 
         public override Task OnDisconnectedAsync(Exception? exception)
         {
-            var clientId = Context.ConnectionId;
-            _connections.TryRemove(clientId);
+            var connectionId = Context.ConnectionId;
+            var client = GetConnectedClient(connectionId);
+            _connections.TryRemove(client);
             return base.OnDisconnectedAsync(exception);
         }
 
