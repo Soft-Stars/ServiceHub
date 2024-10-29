@@ -56,16 +56,5 @@ namespace SignalRHub
             _connections.TryRemove(client);
             return base.OnDisconnectedAsync(exception);
         }
-
-        public async Task SendCommand(string command, string crmID = null, string connectionId = null, string groupName = null)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public async Task SendSqlCommand(string command, string crmID = null, string connectionId = null, string groupName = null)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

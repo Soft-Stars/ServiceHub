@@ -25,6 +25,14 @@ namespace SignalRHub.Controllers
             var clients = signalHub.GetConnectedClients();
             return clients;
         }
-        
+
+        [HttpPost("DoAction")]
+        public IActionResult DoAction(string clientId, string actionType, string script)
+        {
+            var signalHub = ServiceProvider.GetRequiredService<SignalHub>();
+            var clients = signalHub.GetConnectedClients();
+            return Ok();
+        }
+
     }
 }
