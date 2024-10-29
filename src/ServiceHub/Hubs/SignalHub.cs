@@ -41,6 +41,8 @@ namespace SignalRHub
 
         public override Task OnDisconnectedAsync(Exception? exception)
         {
+            var clientId = Context.ConnectionId;
+            _connections.TryRemove(clientId);
             return base.OnDisconnectedAsync(exception);
         }
 
