@@ -65,7 +65,7 @@ namespace SignalRHub
         public bool SendMessageTo(string clientId, string message)
         {
             var client = GetConnectedClientByClientId(clientId);
-            if (client != null)
+            if (client != null && client.HasValue && !string.IsNullOrEmpty(client.Value.Key))
             {
                 Clients.Client(client.Value.Key).SendAsync("Execute", "message", message);
                 return true;
