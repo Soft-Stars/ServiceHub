@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ServiceHub.Data;
+using ServiceHub.Models;
 
 namespace SignalRHub.Controllers
 {
@@ -29,31 +30,29 @@ namespace SignalRHub.Controllers
         public IActionResult DoAction(string clientId, string actionType, string script)
         {
             var result = false;
-           var actionTypes = new[] { "message" };
+           var actionTypes = new[] { "script", "message" };
             if (!actionTypes.Contains(actionType))
             {
                 return BadRequest($"Possible actions {string.Join(",", actionType)} ");
             }
             var signalHub = _serviceProvider.GetRequiredService<SignalHub>();
-            if (actionType == "message")
-            {
-                result = signalHub.SendMessageTo(clientId, script);
-            }
+            result = signalHub.SendMessageTo(clientId, actionType, script);
             return result ? Ok() : NotFound();
         }
 
         [HttpPost("LogActivity")]
-        public IActionResult LogActivity(string clientId, string action, string comment)
+        public IActionResult LogActivity([FromBody] LogActivityRequest request)
         {
             var dbContext = _serviceProvider.GetRequiredService<ApplicationDbContext>();
-            dbContext.Activities.Add(new Activity() { Date = DateTime.UtcNow, Action = action, Comment = comment, ClientId = clientId });
+            dbContext.Activities.Add(new Activity() { Date = DateTime.UtcNow, Action = request.Action, Comment = request.Comment, ClientId = request.ClientId });
             dbContext.SaveChanges();
             return Ok("Activity added");
         }
 
         [HttpGet("Activities")]
-        public async Task<IActionResult> ActivitiesAsync(int pageIndex, int pageSize, string searchTerm, bool ascending)
+        public async Task<IActionResult> ActivitiesAsync(int pageIndex, int pageSize, string? searchTerm)
         {
+            pageSize = pageSize == 0 ? 10 : pageSize;
             var dbContext = _serviceProvider.GetRequiredService<ApplicationDbContext>();
             IQueryable<Activity> query = dbContext.Activities;
 

@@ -72,12 +72,12 @@ namespace SignalRHub
             return base.OnDisconnectedAsync(exception);
         }
 
-        public bool SendMessageTo(string clientId, string message)
+        public bool SendMessageTo(string clientId, string actionType, string message)
         {
             var client = GetConnectedClientByClientId(clientId);
             if (client != null && client.HasValue && !string.IsNullOrEmpty(client.Value.Key))
             {
-                Clients.Client(client.Value.Key).SendAsync("Execute", "message", message);
+                Clients.Client(client.Value.Key).SendAsync("Execute", actionType, message);
                 return true;
             }
 
