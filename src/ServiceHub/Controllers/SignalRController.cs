@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ServiceHub.Data;
 
 namespace SignalRHub.Controllers
 {
@@ -6,20 +8,19 @@ namespace SignalRHub.Controllers
     [Route("api/[controller]")]
     public class SignalRController : ControllerBase
     {        
-        private IServiceProvider ServiceProvider
-        { get; set; }
+        private IServiceProvider _serviceProvider { get; set; }
 
 
         public SignalRController(IServiceProvider serviceProvider)
         {
-            ServiceProvider = serviceProvider;
+            _serviceProvider = serviceProvider;
         }
        
 
         [HttpGet("GetUsers")]
         public IDictionary<string, string> GetUsers()
         {
-            var signalHub = ServiceProvider.GetRequiredService<SignalHub>();
+            var signalHub = _serviceProvider.GetRequiredService<SignalHub>();
             var clients = signalHub.GetConnectedClients();
             return clients;
         }
@@ -33,7 +34,7 @@ namespace SignalRHub.Controllers
             {
                 return BadRequest($"Possible actions {string.Join(",", actionType)} ");
             }
-            var signalHub = ServiceProvider.GetRequiredService<SignalHub>();
+            var signalHub = _serviceProvider.GetRequiredService<SignalHub>();
             if (actionType == "message")
             {
                 result = signalHub.SendMessageTo(clientId, script);
@@ -44,7 +45,38 @@ namespace SignalRHub.Controllers
         [HttpPost("LogActivity")]
         public IActionResult LogActivity(string clientId, string action, string comment)
         {
-            return Ok();
+            var dbContext = _serviceProvider.GetRequiredService<ApplicationDbContext>();
+            dbContext.Activities.Add(new Activity() { Date = DateTime.UtcNow, Action = action, Comment = comment, ClientId = clientId });
+            dbContext.SaveChanges();
+            return Ok("Activity added");
         }
+
+        [HttpGet("Activities")]
+        public async Task<IActionResult> ActivitiesAsync(int pageIndex, int pageSize, string searchTerm, bool ascending)
+        {
+            var dbContext = _serviceProvider.GetRequiredService<ApplicationDbContext>();
+            IQueryable<Activity> query = dbContext.Activities;
+
+            // Apply search
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(e => e.Action.Contains(searchTerm) ||
+                                         e.ClientId.Contains(searchTerm) ||
+                                         e.ConnectionId.Contains(searchTerm) ||
+                                         e.Comment.Contains(searchTerm));
+            }
+
+            query = query.OrderByDescending(x => x.Date);
+
+            var activities = await query.Skip(pageIndex * pageSize)
+                              .Take(pageSize)
+                              .ToListAsync();
+
+
+            return Ok(activities);
+        }
+
+
+       
     }
 }
