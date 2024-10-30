@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using System.Collections.Concurrent;
 
 namespace SignalRHub.Controllers
 {
@@ -43,5 +41,10 @@ namespace SignalRHub.Controllers
             return result ? Ok() : NotFound();
         }
 
+        [HttpPost("LogActivity")]
+        public IActionResult LogActivity(string clientId, string action, string comment)
+        {
+            return Ok();
+        }
     }
 }

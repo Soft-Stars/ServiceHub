@@ -1,9 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.SignalR;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -11,8 +8,14 @@ namespace SignalRHub
 {
     public sealed class SignalHub : Hub
     {
+        private readonly ILogger<SignalHub> _logger;
 
         ConcurrentDictionary<string, string> _connections = new ConcurrentDictionary<string, string>();
+        public SignalHub(ILogger<SignalHub> logger)
+        {
+            _logger = logger;
+        }
+
 
         public ConcurrentDictionary<string, string> GetConnectedClients()
         {
@@ -36,9 +39,9 @@ namespace SignalRHub
 
         public override async Task OnConnectedAsync()
         {
-            var clientId = Context.ConnectionId;
+            var connectionId = Context.ConnectionId;
             var httpCtx = Context.GetHttpContext();
-            string clientCustomId = httpCtx.Request.Headers["CI"].ToString();
+            string clientId = httpCtx.Request.Headers["CI"].ToString();
             string dateTime = httpCtx.Request.Headers["T"].ToString();
             string accessToken = httpCtx.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             HMACSHA256 hmacSha256 = new HMACSHA256(Encoding.UTF8.GetBytes("ounmadhr"));
@@ -48,10 +51,17 @@ namespace SignalRHub
             {
                 throw new HubException("401: Missing Argument");
             }
-            
-            _connections.TryAdd(clientId, clientCustomId);
 
-            await base.OnConnectedAsync();
+            var client = GetConnectedClientByClientId(connectionId);
+            if (client == null || !client.HasValue || string.IsNullOrEmpty(client.Value.Key))
+            {
+                _connections.TryAdd(connectionId, clientId);
+                await base.OnConnectedAsync();
+            }
+            else
+            {
+                _logger.LogError($"{clientId} already connected");
+            }
         }
 
         public override Task OnDisconnectedAsync(Exception? exception)
