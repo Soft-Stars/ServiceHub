@@ -22,8 +22,12 @@ jobs:
       - name: Restore Dependencies
         run: dotnet restore src/ServiceHub/ServiceHub.sln
 
-      - name: Run migrate
-        run: ./src/ServiceHub/migrate.ps1
+      - name: Setup DB
+        shell: pwsh
+        run: |
+            cd src/ServiceHub/
+            chmod +x migrate.ps1
+            .\migrate.ps1
 
       - name: Build Project
         run: dotnet build src/ServiceHub/ServiceHub.sln --configuration Release --no-restore
