@@ -1,0 +1,53 @@
+﻿@inject NavigationManager Navigation
+@inject HttpClient Http
+
+<div class="modal" tabindex="-1" id="loginModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Login</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" @bind="Username" />
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" @bind="Password" />
+                </div>
+                @if (!string.IsNullOrEmpty(ErrorMessage))
+                {
+                    <div class="alert alert-danger">@ErrorMessage</div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" @onclick="HandleLogin">Login</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string Username { get; set; } = string.Empty;
+    private string Password { get; set; } = string.Empty;
+    private string ErrorMessage { get; set; } = string.Empty;
+
+    private async Task HandleLogin()
+    {
+        var loginData = new { Username, Password };
+        var response = await Http.PostAsJsonAsync("api/auth/login", loginData);
+
+        if (response.IsSuccessStatusCode)
+        {
+            // Redirect after successful login
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            ErrorMessage = "Invalid login attempt.";
+        }
+    }
+}

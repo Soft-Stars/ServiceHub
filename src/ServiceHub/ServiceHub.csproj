@@ -12,6 +12,9 @@
     <PackageReference Include="NLog.Slack" Version="2.0.0" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.14" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="8.0.10" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.10" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.10" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.10" />
       <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.10" />
@@ -23,9 +26,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Portal.db">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <Folder Include="Migrations\" />
+    <Folder Include="wwwroot\lib\bootstrap\css\" />
+    <Folder Include="wwwroot\lib\bootstrap\js\" />
+    <Folder Include="wwwroot\lib\bootstrap\scss\mixins\" />
+    <Folder Include="wwwroot\lib\bootstrap\scss\utilities\" />
+    <Folder Include="wwwroot\lib\bootstrap\scss\vendor\" />
+    <Folder Include="wwwroot\lib\open-iconic\font\css\" />
+    <Folder Include="wwwroot\lib\open-iconic\font\fonts\" />
+    <Folder Include="wwwroot\lib\open-iconic\png\" />
+    <Folder Include="wwwroot\lib\open-iconic\sprite\" />
+    <Folder Include="wwwroot\lib\open-iconic\svg\" />
+    <Folder Include="wwwroot\lib\open-iconic\webp\" />
   </ItemGroup>
 
 </Project>

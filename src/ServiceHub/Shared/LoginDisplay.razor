@@ -1,0 +1,25 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.Extensions.Options
+@using ServiceHub.Pages
+@inject SignInManager<IdentityUser> SignInManager
+@inject NavigationManager Navigation
+
+<AuthorizeView>
+    <Authorized>
+        <NavLink class="nav-link" href="profile-page">
+            <a>Hello, @context.User.Identity.Name!</a>
+        </NavLink>
+        <button class="nav-link btn btn-link" @onclick="Logout">Logout</button>
+    </Authorized>
+    <NotAuthorized>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+        <LoginDialog />
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private async Task Logout()
+    {
+        Navigation.NavigateTo("Identity/Account/Logout", forceLoad: true);
+    }
+}
